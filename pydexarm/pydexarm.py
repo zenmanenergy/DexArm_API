@@ -48,6 +48,21 @@ class Dexarm:
                     break
                 else:
                     print("read：", serial_str)
+                    self._readCmdResponse(serial_str)
+
+    def _readCmdResponse(self, serial_str):
+        if serial_str.find("X:") > -1:
+            temp = re.findall(r"[-+]?\d*\.\d+|\d+", serial_str)
+            self.x = float(temp[0])
+            self.y = float(temp[1])
+            self.z = float(temp[2])
+            self.e = float(temp[3])
+
+        if serial_str.find("DEXARM Theta") > -1:
+            temp = re.findall(r"[-+]?\d*\.\d+|\d+", serial_str)
+            self.a = float(temp[0])
+            self.b = float(temp[1])
+            self.c = float(temp[2])
 
     def go_home(self):
         """
@@ -55,7 +70,7 @@ class Dexarm:
         """
         self._send_cmd("M1112\r")
         self.get_current_position()
-
+        
     def set_workorigin(self):
         """
         Set the current position as the new work origin.
@@ -163,26 +178,28 @@ class Dexarm:
         Get the current position
         
         """
-        self.ser.reset_input_buffer()
-        self.ser.write('M114\r'.encode())
-        while True:
-            serial_str = self.ser.readline().decode("utf-8")
-            if len(serial_str) > 0:
-                if serial_str.find("X:") > -1:
-                    temp = re.findall(r"[-+]?\d*\.\d+|\d+", serial_str)
-                    self.x = float(temp[0])
-                    self.y = float(temp[1])
-                    self.z = float(temp[2])
-                    self.e = float(temp[3])
-            if len(serial_str) > 0:
-                if serial_str.find("DEXARM Theta") > -1:
-                    temp = re.findall(r"[-+]?\d*\.\d+|\d+", serial_str)
-                    self.a = float(temp[0])
-                    self.b = float(temp[1])
-                    self.c = float(temp[2])
-            if len(serial_str) > 0:
-                if serial_str.find("ok") > -1:
-                    break;
+        
+        self._send_cmd("M114\r")
+        # self.ser.reset_input_buffer()
+        # self.ser.write('M114\r'.encode())
+        # while True:
+        #     serial_str = self.ser.readline().decode("utf-8")
+        #     if len(serial_str) > 0:
+        #         if serial_str.find("X:") > -1:
+        #             temp = re.findall(r"[-+]?\d*\.\d+|\d+", serial_str)
+        #             self.x = float(temp[0])
+        #             self.y = float(temp[1])
+        #             self.z = float(temp[2])
+        #             self.e = float(temp[3])
+        #     if len(serial_str) > 0:
+        #         if serial_str.find("DEXARM Theta") > -1:
+        #             temp = re.findall(r"[-+]?\d*\.\d+|\d+", serial_str)
+        #             self.a = float(temp[0])
+        #             self.b = float(temp[1])
+        #             self.c = float(temp[2])
+        #     if len(serial_str) > 0:
+        #         if serial_str.find("ok") > -1:
+        #             break;
 
     def delay_ms(self, value):
         """
