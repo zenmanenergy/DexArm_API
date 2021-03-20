@@ -48,9 +48,9 @@ class Dexarm:
                     break
                 else:
                     print("read：", serial_str)
-                    self._readCmdResponse(serial_str)
+                    self._read_cmd_response(serial_str)
 
-    def _readCmdResponse(self, serial_str):
+    def _read_cmd_response(self, serial_str):
         if serial_str.find("THE CURRENT MODULE IS PEN") > -1:
             self.module_type = 'PEN'
         if serial_str.find("THE CURRENT MODULE IS LASER") > -1:
@@ -90,6 +90,22 @@ class Dexarm:
         self.y=0
         self.z=0
         self.e=0
+
+    def set_position(self,x=None,y=None,z=None,e=None):
+        """
+        Set the current position as of the axis' passed in as arguments
+        """
+        if x is not None:
+            self.x=round(x)
+        if y is not None:
+            self.y=round(y)
+        if z is not None:
+            self.z=round(z)
+        if e is not None:
+            self.e=round(e)
+        cmd="G92 X"+ str(self.x)+" Y"+ str(self.y)+" Z"+ str(self.z)+" E"+ str(self.e)+"\r"
+        print(cmd)
+        self._send_cmd(cmd)
 
     def set_acceleration(self, acceleration, travel_acceleration, retract_acceleration=60):
         """
