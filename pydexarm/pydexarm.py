@@ -183,7 +183,7 @@ class Dexarm:
                 if serial_str.find("ok") > -1:
                     break;
 
-    def dealy_ms(self, value):
+    def delay_ms(self, value):
         """
         Pauses the command queue and waits for a period of time in ms
 
@@ -192,7 +192,7 @@ class Dexarm:
         """
         self._send_cmd("G4 P" + str(value) + '\r')
 
-    def dealy_s(self, value):
+    def delay_s(self, value):
         """
         Pauses the command queue and waits for a period of time in s
 
