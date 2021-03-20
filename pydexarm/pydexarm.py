@@ -20,6 +20,7 @@ class Dexarm:
         self.b = None
         self.c = None
         self.module_type = 'PEN'
+        self.module_status ="off"
         if self.is_open:
             print('pydexarm: %s open' % self.ser.name)
             self.get_current_position()
@@ -216,6 +217,7 @@ class Dexarm:
         """
         if self.module_type is not "PUMP":
             self.set_module_type(2)
+        self.module_status='closed'
         self._send_cmd("M1001\r")
 
     def soft_gripper_place(self):
@@ -224,6 +226,7 @@ class Dexarm:
         """
         if self.module_type is not "PUMP":
             self.set_module_type(2)
+        self.module_status='open'
         self._send_cmd("M1000\r")
 
     def soft_gripper_nature(self):
@@ -232,6 +235,7 @@ class Dexarm:
         """
         if self.module_type is not "PUMP":
             self.set_module_type(2)
+        self.module_status='off'
         self._send_cmd("M1002\r")
 
     def soft_gripper_stop(self):
@@ -240,6 +244,7 @@ class Dexarm:
         """
         if self.module_type is not "PUMP":
             self.set_module_type(2)
+        self.module_status='off'
         self._send_cmd("M1003\r")
 
     def air_picker_pick(self):
@@ -248,6 +253,7 @@ class Dexarm:
         """
         if self.module_type is not "PUMP":
             self.set_module_type(2)
+        self.module_status='pick'
         self._send_cmd("M1000\r")
 
     def air_picker_place(self):
@@ -256,6 +262,7 @@ class Dexarm:
         """
         if self.module_type is not "PUMP":
             self.set_module_type(2)
+        self.module_status='place'
         self._send_cmd("M1002\r")
 
     def air_picker_nature(self):
@@ -264,6 +271,7 @@ class Dexarm:
         """
         if self.module_type is not "PUMP":
             self.set_module_type(2)
+        self.module_status='off'
         self._send_cmd("M1002\r")
 
     def air_picker_stop(self):
@@ -272,6 +280,7 @@ class Dexarm:
         """
         if self.module_type is not "PUMP":
             self.set_module_type(2)
+        self.module_status='off'
         self._send_cmd("M1003\r")
 
     def laser_on(self, value=0):
