@@ -54,6 +54,7 @@ class Dexarm:
         Go to home position and enable the motors. Should be called each time when power on.
         """
         self._send_cmd("M1112\r")
+        self.get_current_position()
 
     def set_workorigin(self):
         """
