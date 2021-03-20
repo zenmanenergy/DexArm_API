@@ -12,8 +12,16 @@ class Dexarm:
         """
         self.ser = serial.Serial(port, 115200, timeout=None)
         self.is_open = self.ser.isOpen()
+        self.x = None
+        self.y = None
+        self.z = None
+        self.e = None
+        self.a = None
+        self.b = None
+        self.c = None
         if self.is_open:
             print('pydexarm: %s open' % self.ser.name)
+            self.get_current_position()
         else:
             print('failed to open serial port')
 
@@ -51,6 +59,10 @@ class Dexarm:
         Set the current position as the new work origin.
         """
         self._send_cmd("G92 X0 Y0 Z0 E0\r")
+        self.x=0
+        self.y=0
+        self.z=0
+        self.e=0
 
     def set_acceleration(self, acceleration, travel_acceleration, retract_acceleration=60):
         """
@@ -113,12 +125,16 @@ class Dexarm:
         cmd = mode + "F" + str(feedrate)
         if x is not None:
             cmd = cmd + "X"+str(round(x))
+            self.x=round(x)
         if y is not None:
             cmd = cmd + "Y" + str(round(y))
+            self.y=round(y)
         if z is not None:
             cmd = cmd + "Z" + str(round(z))
+            self.z=round(z)
         if e is not None:
             cmd = cmd + "E" + str(round(e))
+            self.e=round(e)
         cmd = cmd + "\r\n"
         self._send_cmd(cmd, wait=wait)
 
@@ -136,30 +152,27 @@ class Dexarm:
         """
         Get the current position
         
-        Returns:
-            position x,y,z, extrusion e, and dexarm theta a,b,c
         """
         self.ser.reset_input_buffer()
         self.ser.write('M114\r'.encode())
-        x, y, z, e, a, b, c = None, None, None, None, None, None, None
         while True:
             serial_str = self.ser.readline().decode("utf-8")
             if len(serial_str) > 0:
                 if serial_str.find("X:") > -1:
                     temp = re.findall(r"[-+]?\d*\.\d+|\d+", serial_str)
-                    x = float(temp[0])
-                    y = float(temp[1])
-                    z = float(temp[2])
-                    e = float(temp[3])
+                    self.x = float(temp[0])
+                    self.y = float(temp[1])
+                    self.z = float(temp[2])
+                    self.e = float(temp[3])
             if len(serial_str) > 0:
                 if serial_str.find("DEXARM Theta") > -1:
                     temp = re.findall(r"[-+]?\d*\.\d+|\d+", serial_str)
-                    a = float(temp[0])
-                    b = float(temp[1])
-                    c = float(temp[2])
+                    self.a = float(temp[0])
+                    self.b = float(temp[1])
+                    self.c = float(temp[2])
             if len(serial_str) > 0:
                 if serial_str.find("ok") > -1:
-                    return x, y, z, e, a, b, c
+                    break;
 
     def dealy_ms(self, value):
         """
