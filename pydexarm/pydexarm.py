@@ -19,6 +19,7 @@ class Dexarm:
         self.a = None
         self.b = None
         self.c = None
+        self.module_type = 'PEN'
         if self.is_open:
             print('pydexarm: %s open' % self.ser.name)
             self.get_current_position()
@@ -88,6 +89,14 @@ class Dexarm:
                 3 for 3D printing module
         """
         self._send_cmd("M888 P" + str(module_type) + "\r")
+        if module_type==0:
+            self.module_type = 'PEN'
+        if module_type==1:
+            self.module_type = 'LASER'
+        if module_type==2:
+            self.module_type = 'PUMP'
+        if module_type==3:
+            self.module_type = '3D'
 
     def get_module_type(self):
         """
@@ -102,16 +111,16 @@ class Dexarm:
             serial_str = self.ser.readline().decode("utf-8")
             if len(serial_str) > 0:
                 if serial_str.find("PEN") > -1:
-                    module_type = 'PEN'
+                    self.module_type = 'PEN'
                 if serial_str.find("LASER") > -1:
-                    module_type = 'LASER'
+                    self.module_type = 'LASER'
                 if serial_str.find("PUMP") > -1:
-                    module_type = 'PUMP'
+                    self.module_type = 'PUMP'
                 if serial_str.find("3D") > -1:
-                    module_type = '3D'
+                    self.module_type = '3D'
             if len(serial_str) > 0:
                 if serial_str.find("ok") > -1:
-                    return module_type
+                    break
 
     def move_to(self, x=None, y=None, z=None, e=None, feedrate=2000, mode="G1", wait=True):
         """
@@ -196,48 +205,64 @@ class Dexarm:
         """
         Close the soft gripper
         """
+        if self.module_type is not "PUMP":
+            self.set_module_type(2)
         self._send_cmd("M1001\r")
 
     def soft_gripper_place(self):
         """
         Wide-open the soft gripper
         """
+        if self.module_type is not "PUMP":
+            self.set_module_type(2)
         self._send_cmd("M1000\r")
 
     def soft_gripper_nature(self):
         """
         Release the soft gripper to nature state
         """
+        if self.module_type is not "PUMP":
+            self.set_module_type(2)
         self._send_cmd("M1002\r")
 
     def soft_gripper_stop(self):
         """
         Stop the soft gripper
         """
+        if self.module_type is not "PUMP":
+            self.set_module_type(2)
         self._send_cmd("M1003\r")
 
     def air_picker_pick(self):
         """
         Pickup an object
         """
+        if self.module_type is not "PUMP":
+            self.set_module_type(2)
         self._send_cmd("M1000\r")
 
     def air_picker_place(self):
         """
         Release an object
         """
-        self._send_cmd("M1001\r")
+        if self.module_type is not "PUMP":
+            self.set_module_type(2)
+        self._send_cmd("M1002\r")
 
     def air_picker_nature(self):
         """
         Release to nature state
         """
+        if self.module_type is not "PUMP":
+            self.set_module_type(2)
         self._send_cmd("M1002\r")
 
     def air_picker_stop(self):
         """
         Stop the picker
         """
+        if self.module_type is not "PUMP":
+            self.set_module_type(2)
         self._send_cmd("M1003\r")
 
     def laser_on(self, value=0):
@@ -245,14 +270,18 @@ class Dexarm:
         Turn on the laser
 
         Args:
-            value (int): set the power, range form 1 to 255
+            value (int): set the power, range from 1 to 255
         """
+        if self.module_type is not "LASER":
+            self.set_module_type(1)
         self._send_cmd("M3 S" + str(value) + '\r')
 
     def laser_off(self):
         """
         Turn off the laser
         """
+        if self.module_type is not "LASER":
+            self.set_module_type(1)
         self._send_cmd("M5\r")
 
     """Conveyor Belt"""
