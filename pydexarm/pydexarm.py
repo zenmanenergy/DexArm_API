@@ -51,6 +51,15 @@ class Dexarm:
                     self._readCmdResponse(serial_str)
 
     def _readCmdResponse(self, serial_str):
+        if serial_str.find("THE CURRENT MODULE IS PEN") > -1:
+            self.module_type = 'PEN'
+        if serial_str.find("THE CURRENT MODULE IS LASER") > -1:
+            self.module_type = 'LASER'
+        if serial_str.find("THE CURRENT MODULE IS PUMP") > -1:
+            self.module_type = 'PUMP'
+        if serial_str.find("THE CURRENT MODULE IS 3D") > -1:
+            self.module_type = '3D'
+
         if serial_str.find("X:") > -1:
             temp = re.findall(r"[-+]?\d*\.\d+|\d+", serial_str)
             self.x = float(temp[0])
@@ -121,22 +130,8 @@ class Dexarm:
         Returns:
             string that indicates the type of the module
         """
-        self.ser.reset_input_buffer()
-        self.ser.write('M888\r'.encode())
-        while True:
-            serial_str = self.ser.readline().decode("utf-8")
-            if len(serial_str) > 0:
-                if serial_str.find("PEN") > -1:
-                    self.module_type = 'PEN'
-                if serial_str.find("LASER") > -1:
-                    self.module_type = 'LASER'
-                if serial_str.find("PUMP") > -1:
-                    self.module_type = 'PUMP'
-                if serial_str.find("3D") > -1:
-                    self.module_type = '3D'
-            if len(serial_str) > 0:
-                if serial_str.find("ok") > -1:
-                    break
+        self._send_cmd("M888\r")
+        
 
     def move_to(self, x=None, y=None, z=None, e=None, feedrate=2000, mode="G1", wait=True):
         """
