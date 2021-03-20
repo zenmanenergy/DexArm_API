@@ -79,6 +79,7 @@ class Dexarm:
         """
         self._send_cmd("M1112\r")
         self.get_current_position()
+        self.get_module_type()
         
     def set_workorigin(self):
         """
