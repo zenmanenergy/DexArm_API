@@ -97,13 +97,13 @@ class Dexarm:
         Set the current position as of the axis' passed in as arguments
         """
         if x is not None:
-            self.x=round(x)
+            self.x=round(x,1)
         if y is not None:
-            self.y=round(y)
+            self.y=round(y,1)
         if z is not None:
-            self.z=round(z)
+            self.z=round(z,1)
         if e is not None:
-            self.e=round(e)
+            self.e=round(e,1)
         cmd="G92 X"+ str(self.x)+" Y"+ str(self.y)+" Z"+ str(self.z)+" E"+ str(self.e)+"\r"
         print(cmd)
         self._send_cmd(cmd)
@@ -162,17 +162,17 @@ class Dexarm:
         """
         cmd = mode + "F" + str(feedrate)
         if x is not None:
-            cmd = cmd + "X"+str(round(x))
-            self.x=round(x)
+            cmd = cmd + "X"+str(round(x,1))
+            self.x=round(x,1)
         if y is not None:
-            cmd = cmd + "Y" + str(round(y))
-            self.y=round(y)
+            cmd = cmd + "Y" + str(round(y,1))
+            self.y=round(y,1)
         if z is not None:
-            cmd = cmd + "Z" + str(round(z))
-            self.z=round(z)
+            cmd = cmd + "Z" + str(round(z,1))
+            self.z=round(z,1)
         if e is not None:
-            cmd = cmd + "E" + str(round(e))
-            self.e=round(e)
+            cmd = cmd + "E" + str(round(e,1))
+            self.e=round(e,1)
         cmd = cmd + "\r\n"
         self._send_cmd(cmd, wait=wait)
 
