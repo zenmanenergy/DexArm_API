@@ -14,7 +14,7 @@ from tkinter import *
 dexarm = Dexarm(port="COM5")
 # This is the tkinter GUI library 
 window = Tk()
-window.title("Dexam gui with position information")
+window.title("Dexarm gui with position information")
 window.geometry('600x400')
 
 
@@ -32,8 +32,10 @@ pgdn - move down
 right arrow - right
 left arrow - left
 up arrow - forward
-down arrow - backward.
-home - move to home position"""
+down arrow - backward
+home - move to home position
+[ - rotate left
+] - rotate right"""
 instructions=Label(window, 
 		 text=instructions,
 		 font = ("Helvetica",18),
@@ -43,9 +45,9 @@ instructions=Label(window,
 instructions.grid(column=0,row=1,columnspan=4)
 
 def armPositionData():
-    postionData = "X:" + str(dexarm.x) + " Y:" +str(dexarm.y) + " Z:"+str(dexarm.z)
+    postionData = "X:" + str(dexarm.x) + " Y:" +str(dexarm.y) + " Z:"+str(dexarm.z) + " R:" + str(dexarm.r)
     postionData += " module:" + dexarm.module_type + ":" + dexarm.module_status
-    print(data.cget('text'))
+    
     data.config(text=postionData)
     
 
@@ -95,7 +97,15 @@ def homeKey(event):
     dexarm.go_home()
     armPositionData()
 
+def bracketleftKey(event):
+    print("bracketleftKey")
+    dexarm.rotate("absolute", dexarm.r+90)
+    armPositionData()
 
+def bracketrightKey(event):
+    print("bracketrightKey")
+    dexarm.rotate("absolute", dexarm.r-90)
+    armPositionData()
 
 armPositionData()
 
@@ -118,6 +128,9 @@ window.bind('<Next>', pageDownKey)
 window.bind('<Home>', homeKey)
 window.bind('<plus>', plusKey)
 window.bind('<minus>', minusKey)
+window.bind('<bracketleft>', bracketleftKey)
+window.bind('<bracketright>', bracketrightKey)
+
 
 
 
