@@ -1,5 +1,6 @@
 import serial
 import re
+import math
 
 class Dexarm:
     """ Python class for Dexarm
@@ -20,6 +21,7 @@ class Dexarm:
         self.b = None
         self.c = None
         self.r = 0
+        self.cameraRotationOffsetAngle=0
         self.module_type = 'PEN'
         self.module_status ="off"
         if self.is_open:
@@ -75,6 +77,7 @@ class Dexarm:
             self.y = float(temp[1])
             self.z = float(temp[2])
             self.e = float(temp[3])
+            self.cameraRotationOffsetAngle = (180/math.pi)* math.atan(self.x/self.y)
 
         if serial_str.find("DEXARM Theta") > -1:
             temp = re.findall(r"[-+]?\d*\.\d+|\d+", serial_str)
@@ -107,6 +110,7 @@ class Dexarm:
         self.y=0
         self.z=0
         self.e=0
+        self.cameraRotationOffsetAngle = (180/math.pi)* math.atan(self.x/self.y)
 
     def set_position(self,x=None,y=None,z=None,e=None):
         """
@@ -121,7 +125,8 @@ class Dexarm:
         if e is not None:
             self.e=round(e,1)
         cmd="G92 X"+ str(self.x)+" Y"+ str(self.y)+" Z"+ str(self.z)+" E"+ str(self.e)+"\r"
-        print(cmd)
+        
+        self.cameraRotationOffsetAngle = (180/math.pi)* math.atan(self.x/self.y)
         self._send_cmd(cmd)
 
     def set_acceleration(self, acceleration, travel_acceleration, retract_acceleration=60):
@@ -218,7 +223,8 @@ class Dexarm:
             self.e=round(e,1)
         cmd = cmd + "\r\n"
         self._send_cmd(cmd, wait=wait)
-
+        
+        self.cameraRotationOffsetAngle = (180/math.pi)* math.atan(self.x/self.y)
     def fast_move_to(self, x=None, y=None, z=None, feedrate=2000, wait=True):
         """
         Fast move to a cartesian position, i.e., in mode G0
