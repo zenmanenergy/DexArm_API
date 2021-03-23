@@ -19,11 +19,14 @@ class Dexarm:
         self.a = None
         self.b = None
         self.c = None
+        self.r = 0
         self.module_type = 'PEN'
         self.module_status ="off"
         if self.is_open:
             print('pydexarm: %s open' % self.ser.name)
             self.get_current_position()
+            self.get_module_type()
+            self.get_rotary_position()
         else:
             print('failed to open serial port')
 
@@ -37,6 +40,7 @@ class Dexarm:
                 If True, this function will block until the arm response "ok"
                 If False, this function will not block here. But the command could be ignored if buffer of the arm is full.
         """
+        print(data.encode())
         self.ser.write(data.encode())
         if not wait:
             self.ser.reset_input_buffer()
@@ -52,6 +56,10 @@ class Dexarm:
                     self._read_cmd_response(serial_str)
 
     def _read_cmd_response(self, serial_str):
+        """
+        Reads the serial response from the arm and updates the objects data
+
+        """
         if serial_str.find("THE CURRENT MODULE IS PEN") > -1:
             self.module_type = 'PEN'
         if serial_str.find("THE CURRENT MODULE IS LASER") > -1:
@@ -74,6 +82,13 @@ class Dexarm:
             self.b = float(temp[1])
             self.c = float(temp[2])
 
+        # BUG: THE DEXARM IS GIVING REALLY WEIRD NUMBERS
+        # if serial_str.find("current positon") > -1:
+        #     temp = re.findall(r"[-+]?\d*\.\d+|\d+", serial_str)
+        #     print(int(temp[0]))
+        #     self.r = int(temp[0])
+
+
     def go_home(self):
         """
         Go to home position and enable the motors. Should be called each time when power on.
@@ -81,6 +96,7 @@ class Dexarm:
         self._send_cmd("M1112\r")
         self.get_current_position()
         self.get_module_type()
+        self.get_rotary_position()
         
     def set_workorigin(self):
         """
@@ -145,10 +161,37 @@ class Dexarm:
         """
         Get the type of end effector.
 
-        Returns:
-            string that indicates the type of the module
         """
+        print("get module")
         self._send_cmd("M888\r")
+        
+    def get_rotary_position(self):
+        """
+        Get the rotary position.
+
+        """
+        self._send_cmd("M888 P6\r")
+        self._send_cmd("M2100 \r")
+        self._send_cmd("M2101 \r")
+
+    def rotate(self,type,angle):
+        """
+        Rotates the rotary end effector
+
+        Args:
+            type (string): relative, absolute
+            angle (int): number of degrees to rotate to
+        """
+        if type == "absolute":
+            type="P"
+            self.r=angle
+        elif type=="relative":
+            type="R"
+            self.r=self.r+angle
+        else:
+            raise Exception("Invalid argument: type")
+
+        self._send_cmd("M2101 "+type+str(angle)+"\r")
         
 
     def move_to(self, x=None, y=None, z=None, e=None, feedrate=2000, mode="G1", wait=True):
@@ -191,6 +234,7 @@ class Dexarm:
         Get the current position
         
         """
+        print("get_current_position")
         self._send_cmd("M114\r")
 
     def delay_ms(self, value):
